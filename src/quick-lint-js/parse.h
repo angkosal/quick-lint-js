@@ -3697,8 +3697,7 @@ class parser {
   expression *parse_expression_remainder(expression *, precedence);
 
   void parse_arrow_function_expression_remainder(
-      vector<expression *, /*InSituCapacity=*/2> &children,
-      bool allow_in_operator);
+      expression_arena::vector<expression *> &children, bool allow_in_operator);
   expression *parse_call_expression_remainder(expression *callee);
   expression *parse_index_expression_remainder(expression *lhs);
 
