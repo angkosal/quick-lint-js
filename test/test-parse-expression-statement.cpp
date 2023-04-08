@@ -1650,7 +1650,7 @@ TEST_F(test_parse_expression_statement, invalid_parentheses) {
 }
 
 TEST_F(test_parse_expression_statement,
-       arrow_fuction_statement_requires_semicolon_or_asi) {
+       arrow_function_statement_requires_semicolon_or_asi) {
   {
     test_parser p(u8"() => {} foo"_sv, capture_diags);
     p.parse_and_visit_module();
@@ -1695,6 +1695,31 @@ TEST_F(test_parse_expression_statement,
                               "visit_variable_use",               // foo
                               "visit_end_of_module",              //
                           }));
+  }
+}
+
+TEST_F(test_parse_expression_statement,
+       parenthesized_expression_requires_semicolon_or_asi) {
+  {
+    test_parser p(u8"(2+2) foo"_sv, capture_diags);
+    p.parse_and_visit_module();
+    EXPECT_THAT(p.errors,
+                ElementsAreArray({
+                    DIAG_TYPE_OFFSETS(
+                        p.code, diag_missing_semicolon_after_statement,  //
+                        where, strlen(u8"(2+2)"), u8""_sv),
+                }));
+  }
+
+  {
+    test_parser p(u8"if (true) { } else (2+2) foo"_sv, capture_diags);
+    p.parse_and_visit_module();
+    EXPECT_THAT(p.errors,
+                ElementsAreArray({
+                    DIAG_TYPE_OFFSETS(
+                        p.code, diag_missing_semicolon_after_statement,  //
+                        where, strlen(u8"if (true) { } else (2+2)"), u8""_sv),
+                }));
   }
 }
 }
