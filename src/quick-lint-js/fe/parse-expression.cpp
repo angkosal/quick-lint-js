@@ -825,7 +825,8 @@ expression* parser::parse_async_expression_only(
     bool is_arrow_function = this->peek().type == token_type::equal_greater;
     bool is_arrow_function_without_arrow =
         !this->peek().has_leading_newline &&
-        this->peek().type == token_type::left_curly;
+        this->peek().type == token_type::left_curly &&
+        !prec.in_class_extends_clause /* See NOTE[extends-await-paren]. */;
     if (is_arrow_function || is_arrow_function_without_arrow) {
       this->lexer_.commit_transaction(std::move(transaction));
       if (newline_after_async) {
@@ -1226,11 +1227,20 @@ expression* parser::parse_await_expression(parse_visitor_base& v,
         [[fallthrough]];
       case token_type::complete_template:
       case token_type::incomplete_template:
-      case token_type::left_paren:
       case token_type::left_square:
       case token_type::minus:
       case token_type::plus:
         return !this->in_top_level_;
+
+      // class A extends await(){} // Identifier. See NOTE[extends-await-paren].
+      // await (x);                // Ambiguous.
+      case token_type::left_paren:
+        return prec.in_class_extends_clause || !this->in_top_level_;
+
+      // class A extends await { }  // Identifier.
+      // await {};                  // Operator.
+      case token_type::left_curly:
+        return prec.in_class_extends_clause;
 
       case token_type::dot_dot_dot:
       case token_type::identifier:
@@ -1244,7 +1254,6 @@ expression* parser::parse_await_expression(parse_visitor_base& v,
       case token_type::kw_set:
       case token_type::kw_static:
       case token_type::kw_yield:
-      case token_type::left_curly:
       case token_type::number:
       case token_type::private_identifier:
       case token_type::regexp:
@@ -1454,7 +1463,7 @@ next:
               return true;
 
             case token_type::left_curly:  // class A extends B<C> {}
-              if (prec.allow_left_curly_after_generic) {
+              if (prec.in_class_extends_clause) {
                 parsed_as_generic_arguments = true;
                 return true;
               } else {
