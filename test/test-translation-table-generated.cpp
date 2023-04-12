@@ -1166,6 +1166,17 @@ const translated_string test_translation_table[] = {
         },
     },
     {
+        "TypeScript parameter properties are not allowed in JavaScript"_translatable,
+        {
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+            u8"TypeScript parameter properties are not allowed in JavaScript",
+        },
+    },
+    {
         "TypeScript requires whitespace between '>' and '=' here"_translatable,
         {
             u8"TypeScript requires whitespace between '>' and '=' here",
@@ -3916,6 +3927,17 @@ const translated_string test_translation_table[] = {
         },
     },
     {
+        "parameter properties cannot be destructured"_translatable,
+        {
+            u8"parameter properties cannot be destructured",
+            u8"parameter properties cannot be destructured",
+            u8"parameter properties cannot be destructured",
+            u8"parameter properties cannot be destructured",
+            u8"parameter properties cannot be destructured",
+            u8"parameter properties cannot be destructured",
+        },
+    },
+    {
         "parentheses are required around 'infer {1}'"_translatable,
         {
             u8"parentheses are required around 'infer {1}'",
@@ -3946,6 +3968,17 @@ const translated_string test_translation_table[] = {
             u8"les propri\u00e9t\u00e9s priv\u00e9es ne sont pas autoris\u00e9es dans les litt\u00e9raux objet",
             u8"propriedades privadas n\u00e3o s\u00e3o permitidas em objetos",
             u8"privata egenskaper \u00e4r inte till\u00e5tna i objektlitter\u00e4ler",
+        },
+    },
+    {
+        "property declared using '{0}' here"_translatable,
+        {
+            u8"property declared using '{0}' here",
+            u8"property declared using '{0}' here",
+            u8"property declared using '{0}' here",
+            u8"property declared using '{0}' here",
+            u8"property declared using '{0}' here",
+            u8"property declared using '{0}' here",
         },
     },
     {
