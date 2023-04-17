@@ -81,16 +81,45 @@
 #define QLJS_HAVE_SYS_STAT_H 0
 #endif
 
-#if defined(QLJS_HAVE_SYS_WAIT_H) && QLJS_HAVE_SYS_WAIT_H
+// Whether <libutil.h>, which contains forkpty, exists.
+#if defined(QLJS_HAVE_LIBUTIL_H) && QLJS_HAVE_LIBUTIL_H
 #elif defined(__has_include)
-#if __has_include(<sys/wait.h>)
-#define QLJS_HAVE_SYS_WAIT_H 1
+#if __has_include(<libutil.h>)
+#define QLJS_HAVE_LIBUTIL_H 1
 #endif
-#elif defined(__unix__)
-#define QLJS_HAVE_SYS_WAIT_H 1
 #endif
-#if !defined(QLJS_HAVE_SYS_WAIT_H)
-#define QLJS_HAVE_SYS_WAIT_H 0
+#if !defined(QLJS_HAVE_LIBUTIL_H)
+#define QLJS_HAVE_LIBUTIL_H 0
+#endif
+
+// Whether <pty.h>, which contains forkpty, exists.
+#if defined(QLJS_HAVE_PTY_H) && QLJS_HAVE_PTY_H
+#elif defined(__has_include)
+#if __has_include(<pty.h>)
+#define QLJS_HAVE_PTY_H 1
+#endif
+#endif
+#if !defined(QLJS_HAVE_PTY_H)
+#define QLJS_HAVE_PTY_H 0
+#endif
+
+// Whether <util.h>, which contains forkpty, exists.
+#if defined(QLJS_HAVE_UTIL_H) && QLJS_HAVE_UTIL_H
+#elif defined(__has_include)
+#if __has_include(<util.h>)
+#define QLJS_HAVE_UTIL_H 1
+#endif
+#endif
+#if !defined(QLJS_HAVE_UTIL_H)
+#define QLJS_HAVE_UTIL_H 0
+#endif
+
+#if !defined(QLJS_HAVE_FORKPTY)
+#if QLJS_HAVE_LIBUTIL_H || QLJS_HAVE_PTY_H || QLJS_HAVE_UTIL_H
+#define QLJS_HAVE_FORKPTY 1
+#else
+#define QLJS_HAVE_FORKPTY 0
+#endif
 #endif
 
 #if defined(QLJS_HAVE_UNISTD_H) && QLJS_HAVE_UNISTD_H
@@ -103,6 +132,18 @@
 #endif
 #if !defined(QLJS_HAVE_UNISTD_H)
 #define QLJS_HAVE_UNISTD_H 0
+#endif
+
+#if defined(QLJS_HAVE_SYS_WAIT_H) && QLJS_HAVE_SYS_WAIT_H
+#elif defined(__has_include)
+#if __has_include(<sys/wait.h>) && !defined(__EMSCRIPTEN__)
+#define QLJS_HAVE_SYS_WAIT_H 1
+#endif
+#elif QLJS_HAVE_UNISTD_H
+#define QLJS_HAVE_SYS_WAIT_H 1
+#endif
+#if !defined(QLJS_HAVE_SYS_WAIT_H)
+#define QLJS_HAVE_SYS_WAIT_H 0
 #endif
 
 #if defined(QLJS_HAVE_SANITIZER_ASAN_INTERFACE_H) && \
@@ -501,6 +542,16 @@
 #else
 #define QLJS_HAVE_GETTHREADDESCRIPTION 0
 #endif
+#endif
+
+// QLJS_HAVE_POSIX_SPAWN is whether <spawn.h> and posix_spawn functions exist.
+#if !defined(QLJS_HAVE_POSIX_SPAWN) && defined(__has_include)
+#if __has_include(<spawn.h>) && !defined(__EMSCRIPTEN__)
+#define QLJS_HAVE_POSIX_SPAWN 1
+#endif
+#endif
+#if !defined(QLJS_HAVE_POSIX_SPAWN)
+#define QLJS_HAVE_POSIX_SPAWN 0
 #endif
 
 // Whether GCC's labels as values and computed goto statement extensions are

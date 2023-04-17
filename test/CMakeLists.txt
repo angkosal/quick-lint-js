@@ -2,8 +2,34 @@
 # See end of file for extended copyright information.
 
 cmake_minimum_required(VERSION 3.10)
+include(CheckCXXSourceCompiles)
 include(QuickLintJSCompiler)
 include(QuickLintJSTarget)
+
+set(OLD_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+list(APPEND CMAKE_REQUIRED_LIBRARIES util)
+check_cxx_source_compiles(
+  "#include <pty.h>
+  int main() {
+    pid_t rc = ::forkpty(nullptr, nullptr, nullptr, nullptr);
+    return (int)rc;
+  }" QUICK_LINT_JS_HAVE_LIBUTIL)
+set(CMAKE_REQUIRED_LIBRARIES "${OLD_CMAKE_REQUIRED_LIBRARIES}")
+
+quick_lint_js_add_library(
+  quick-lint-js-test-lib
+  filesystem-test.cpp
+  quick-lint-js/filesystem-test.h
+)
+target_include_directories(quick-lint-js-test-lib PUBLIC .)
+target_link_libraries(
+  quick-lint-js-test-lib
+  PRIVATE
+  gmock
+  gtest
+  quick-lint-js-lib
+  quick-lint-js-lib-debug
+)
 
 quick_lint_js_add_executable(
   quick-lint-js-test
@@ -11,7 +37,6 @@ quick_lint_js_add_executable(
   diag-matcher.cpp
   failing-diag-reporter.cpp
   fake-configuration-filesystem.cpp
-  filesystem-test.cpp
   parse-json.cpp
   parse-support.cpp
   quick-lint-js/array.h
@@ -172,10 +197,14 @@ target_link_libraries(
   quick-lint-js-boost-json
   quick-lint-js-lib
   quick-lint-js-lib-debug
+  quick-lint-js-test-lib
   quick-lint-js-typescript-test-lib
 )
 if (QUICK_LINT_JS_FEATURE_DEBUG_SERVER)
   target_link_libraries(quick-lint-js-test PRIVATE mongoose)
+endif ()
+if (QUICK_LINT_JS_HAVE_LIBUTIL)
+  target_link_libraries(quick-lint-js-test PRIVATE util)
 endif ()
 if (QUICK_LINT_JS_PRECOMPILE_HEADERS)
   target_precompile_headers(
@@ -254,11 +283,28 @@ if (ICU_FOUND)
   )
 endif ()
 
-find_package(PythonInterp 3.7)
-if (QUICK_LINT_JS_ENABLE_CLI AND PYTHONINTERP_FOUND)
+if (TARGET quick-lint-js)
+  quick_lint_js_add_executable(
+    quick-lint-js-test-cli
+    test-cli.cpp
+  )
+  target_link_libraries(
+    quick-lint-js-test-cli
+    PRIVATE
+    gmock
+    gmock_main
+    gtest
+    quick-lint-js-lib
+    quick-lint-js-lib-debug
+    quick-lint-js-test-lib
+  )
+  if (QUICK_LINT_JS_HAVE_LIBUTIL)
+    target_link_libraries(quick-lint-js-test-cli PRIVATE util)
+  endif ()
+  add_dependencies(quick-lint-js-test-cli quick-lint-js)
   add_test(
     NAME quick-lint-js-test-cli
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test-cli.py
+    COMMAND quick-lint-js-test-cli
   )
   set_property(
     TEST quick-lint-js-test-cli
